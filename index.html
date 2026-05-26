@@ -44,71 +44,48 @@
       attribution: '&copy; OpenStreetMap contributors'
     }
   ).addTo(map);
+  // READ URL PARAMETERS
+  const params = new URLSearchParams(window.location.search);
 
-  // LOCATIONS
-  const locations = [
+  // STORE MARKERS
+  const markers = [];
 
-    {
-      title: "Centurion",
-      lat: -25.8602437,
-      lng: 28.1898451,
-      task: "Router Installation",
-      technician: "David",
-      status: "In Progress"
-    },
+  // LOOP THROUGH LOCATIONS
+  for (let i = 1; i <= 10; i++) {
 
-    {
-      title: "Muldersdrift",
-      lat: -26.0015321,
-      lng: 27.8407124,
-      task: "Server Maintenance",
-      technician: "Sarah",
-      status: "Pending"
-    },
+    const locationData = params.get(`loc${i}`);
 
-    {
-      title: "Randburg",
-      lat: -26.0937125,
-      lng: 27.9826231,
-      task: "Network Inspection",
-      technician: "Mike",
-      status: "Completed"
+    if (locationData) {
+
+      const parts = locationData.split(",");
+
+      const lat = parseFloat(parts[0]);
+
+      const lng = parseFloat(parts[1]);
+
+      const title = parts[2] || "Dynamic Location";
+
+      // CREATE MARKER
+      const marker = L.marker([lat, lng])
+
+        .addTo(map)
+
+        .bindPopup(title);
+
+      markers.push(marker);
+
     }
 
-  ];
+  }
 
-  // CREATE MARKERS
-  locations.forEach(location => {
+  // AUTO-ZOOM TO MARKERS
+  if (markers.length > 0) {
 
-    L.marker([location.lat, location.lng])
+    const group = L.featureGroup(markers);
 
-      .addTo(map)
+    map.fitBounds(group.getBounds());
 
-      .bindPopup(
-        `
-        <h2>${location.title}</h2>
-
-        <p><b>Task:</b> ${location.task}</p>
-
-        <p><b>Technician:</b> ${location.technician}</p>
-
-        <p><b>Status:</b> ${location.status}</p>
-        `
-      );
-
-  });
-
-  // CREATE ROUTE LINE
-  const route = locations.map(location => [
-    location.lat,
-    location.lng
-  ]);
-
-  L.polyline(route, {
-    color: 'red',
-    weight: 4
-  }).addTo(map);
-
+  }
 </script>
 
 </body>
